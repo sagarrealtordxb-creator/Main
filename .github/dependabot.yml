@@ -1,6 +1,164 @@
 version: 2
+
 updates:
-  - package-ecosystem: "" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  # JavaScript / TypeScript dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+
+    # Keep PR volume manageable.
+    open-pull-requests-limit: 10
+
+    # Prefer updating package manifests and lockfiles together.
+    versioning-strategy: "increase"
+    rebase-strategy: "auto"
+
+    # Avoid opening update PRs immediately after a release.
+    cooldown:
+      default-days: 3
+      semver-major-days: 7
+      semver-minor-days: 3
+      semver-patch-days: 1
+      include:
+        - "npm"
+        - "github-actions"
+
+    # Combine related updates into fewer PRs.
+    groups:
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+
+      major-updates:
+        update-types:
+          - "major"
+
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+    pull-request-branch-name:
+      separator: "/"
+
+    labels:
+      - "dependencies"
+      - "javascript"
+
+    # Uncomment and customize these if desired:
+    # reviewers:
+    #   - "your-org/maintainers"
+    # assignees:
+    #   - "your-github-username"
+    # milestone: 1
+
+  # GitHub Actions used by workflows in .github/workflows/
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:30"
+      timezone: "UTC"
+
+    open-pull-requests-limit: 5
+    rebase-strategy: "auto"
+
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      github-actions-major:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+
+    pull-request-branch-name:
+      separator: "/"
+
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Docker image updates in Dockerfiles and Compose files
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:00"
+      timezone: "UTC"
+
+    open-pull-requests-limit: 5
+    rebase-strategy: "auto"
+
+    groups:
+      docker-images:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:30"
+      timezone: "UTC"
+
+    open-pull-requests-limit: 10
+    versioning-strategy: "increase"
+    rebase-strategy: "auto"
+
+    groups:
+      python-dependencies:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      python-major-updates:
+        patterns:
+          - "*"
+        update-types:
+          - "major"
+
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+
+    labels:
+      - "dependencies"
+      - "python"
